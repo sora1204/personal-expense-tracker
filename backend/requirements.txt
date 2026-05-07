@@ -4,6 +4,7 @@ sqlalchemy
 psycopg[binary]
 pydantic
 pydantic-settings
+email-validator
 python-multipart
 PyJWT
 pwdlib[argon2]
