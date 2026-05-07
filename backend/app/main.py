@@ -1,10 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+
+from app.db.database import SessionLocal
+from app.db.init_db import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 
 app = FastAPI(
     title="Personal Expense Tracker API",
     description="A simple expense tracking API built with FastAPI.",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 origins = [
@@ -26,3 +40,16 @@ def health_check():
         "status": "ok",
         "app": "personal-expense-tracker-api",
     }
+
+
+@app.get("/health/db")
+def database_health_check():
+    db = SessionLocal()
+    try:
+        db.execute(text("SELECT 1"))
+        return {
+            "status": "ok",
+            "database": "connected",
+        }
+    finally:
+        db.close()
