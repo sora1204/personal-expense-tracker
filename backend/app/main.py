@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api.routes import auth, users, categories
+from app.api.routes import auth, users, categories, expenses
 from app.db.database import SessionLocal
 from app.db.init_db import init_db
 
@@ -39,6 +39,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(categories.router)
+app.include_router(expenses.router)
 
 
 @app.get("/health")
