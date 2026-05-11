@@ -317,3 +317,11 @@ button:disabled {
     justify-items: start;
   }
 }
+
+.edit-expense-box {
+  width: 100%;
+}
+
+.edit-button-row {
+  margin-top: 16px;
+}

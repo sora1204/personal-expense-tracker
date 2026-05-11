@@ -7,6 +7,7 @@ import {
   getCategorySummary,
   getExpenses,
   getMonthlySummary,
+  updateExpense,
 } from "../api/expenses";
 import { useAuth } from "../contexts/AuthContext";
 import type { Category } from "../types/category";
@@ -45,6 +46,13 @@ export function ExpensesPage() {
   const [spentAt, setSpentAt] = useState(getTodayString());
   const [memo, setMemo] = useState("");
   const [categoryId, setCategoryId] = useState("");
+
+  const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingAmount, setEditingAmount] = useState("");
+  const [editingSpentAt, setEditingSpentAt] = useState("");
+  const [editingMemo, setEditingMemo] = useState("");
+  const [editingCategoryId, setEditingCategoryId] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -144,6 +152,66 @@ export function ExpensesPage() {
       await loadExpenseData();
     } catch {
       setError("支出の作成に失敗しました。入力内容を確認してください。");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function startEditExpense(expense: Expense) {
+    setEditingExpenseId(expense.id);
+    setEditingTitle(expense.title);
+    setEditingAmount(String(expense.amount));
+    setEditingSpentAt(expense.spent_at);
+    setEditingMemo(expense.memo ?? "");
+    setEditingCategoryId(expense.category_id === null ? "" : String(expense.category_id));
+    setError("");
+  }
+
+  function cancelEditExpense() {
+    setEditingExpenseId(null);
+    setEditingTitle("");
+    setEditingAmount("");
+    setEditingSpentAt("");
+    setEditingMemo("");
+    setEditingCategoryId("");
+  }
+
+  async function handleUpdateExpense(expenseId: number) {
+    const trimmedTitle = editingTitle.trim();
+    const parsedAmount = Number(editingAmount);
+    const trimmedMemo = editingMemo.trim();
+
+    if (!trimmedTitle) {
+      setError("タイトルを入力してください。");
+      return;
+    }
+
+    if (!Number.isInteger(parsedAmount) || parsedAmount <= 0) {
+      setError("金額は1以上の整数で入力してください。");
+      return;
+    }
+
+    if (!editingSpentAt) {
+      setError("日付を入力してください。");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      await updateExpense(expenseId, {
+        title: trimmedTitle,
+        amount: parsedAmount,
+        spent_at: editingSpentAt,
+        memo: trimmedMemo || null,
+        category_id: editingCategoryId ? Number(editingCategoryId) : null,
+      });
+
+      cancelEditExpense();
+      await loadExpenseData();
+    } catch {
+      setError("支出の更新に失敗しました。入力内容を確認してください。");
     } finally {
       setSubmitting(false);
     }
@@ -345,27 +413,128 @@ export function ExpensesPage() {
             <div className="list">
               {expenses.map((expense) => (
                 <div key={expense.id} className="list-item expense-item">
-                  <div>
-                    <strong>{expense.title}</strong>
-                    <p className="muted small-text">
-                      {expense.spent_at} / {getCategoryName(expense.category_id)}
-                    </p>
-                    {expense.memo && (
-                      <p className="muted small-text">{expense.memo}</p>
-                    )}
-                  </div>
+                  {editingExpenseId === expense.id ? (
+                    <div className="edit-expense-box">
+                      <div className="expense-form">
+                        <label>
+                          Title
+                          <input
+                            type="text"
+                            value={editingTitle}
+                            onChange={(event) =>
+                              setEditingTitle(event.target.value)
+                            }
+                            maxLength={100}
+                          />
+                        </label>
 
-                  <div className="expense-actions">
-                    <strong>{formatYen(expense.amount)}</strong>
-                    <button
-                      type="button"
-                      className="danger-button"
-                      onClick={() => handleDeleteExpense(expense.id)}
-                      disabled={submitting}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                        <label>
+                          Amount
+                          <input
+                            type="number"
+                            value={editingAmount}
+                            onChange={(event) =>
+                              setEditingAmount(event.target.value)
+                            }
+                            min={1}
+                          />
+                        </label>
+
+                        <label>
+                          Spent At
+                          <input
+                            type="date"
+                            value={editingSpentAt}
+                            onChange={(event) =>
+                              setEditingSpentAt(event.target.value)
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Category
+                          <select
+                            value={editingCategoryId}
+                            onChange={(event) =>
+                              setEditingCategoryId(event.target.value)
+                            }
+                          >
+                            <option value="">カテゴリなし</option>
+                            {categories.map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className="full-width">
+                          Memo
+                          <input
+                            type="text"
+                            value={editingMemo}
+                            onChange={(event) =>
+                              setEditingMemo(event.target.value)
+                            }
+                            maxLength={1000}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="button-row edit-button-row">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateExpense(expense.id)}
+                          disabled={submitting}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={cancelEditExpense}
+                          disabled={submitting}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <strong>{expense.title}</strong>
+                        <p className="muted small-text">
+                          {expense.spent_at} /{" "}
+                          {getCategoryName(expense.category_id)}
+                        </p>
+                        {expense.memo && (
+                          <p className="muted small-text">{expense.memo}</p>
+                        )}
+                      </div>
+
+                      <div className="expense-actions">
+                        <strong>{formatYen(expense.amount)}</strong>
+                        <div className="button-row">
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() => startEditExpense(expense)}
+                            disabled={submitting}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="danger-button"
+                            onClick={() => handleDeleteExpense(expense.id)}
+                            disabled={submitting}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
