@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export function DashboardPage() {
@@ -37,8 +37,15 @@ export function DashboardPage() {
           </p>
         </div>
 
+        <div className="menu-grid">
+          <Link to="/categories" className="menu-card">
+            <h2>Categories</h2>
+            <p>支出カテゴリの一覧・作成・編集・削除を行います。</p>
+          </Link>
+        </div>
+
         <p className="muted">
-          次のStepで、ここに支出一覧・作成フォーム・集計カードを追加します。
+          次のStepで、支出一覧・支出作成・集計カードを追加します。
         </p>
       </section>
     </main>
