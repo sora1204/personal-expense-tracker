@@ -207,3 +207,113 @@ button:disabled {
 .small-text {
   font-size: 14px;
 }
+
+.section-block {
+  margin-top: 32px;
+}
+
+.section-block h2 {
+  margin-bottom: 16px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.summary-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.summary-card p {
+  margin: 0 0 8px;
+}
+
+.summary-amount {
+  font-size: 24px;
+}
+
+.month-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.month-controls input,
+.month-controls select,
+.expense-form input,
+.expense-form select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px;
+  font: inherit;
+}
+
+.expense-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.expense-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.expense-form .full-width {
+  grid-column: 1 / -1;
+}
+
+.summary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.summary-list-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.expense-item {
+  align-items: flex-start;
+}
+
+.expense-actions {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+  min-width: 140px;
+}
+
+@media (max-width: 720px) {
+  .summary-grid,
+  .expense-form {
+    grid-template-columns: 1fr;
+  }
+
+  .header-row,
+  .list-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button-row {
+    flex-wrap: wrap;
+  }
+
+  .expense-actions {
+    justify-items: start;
+  }
+}

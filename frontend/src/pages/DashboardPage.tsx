@@ -38,15 +38,16 @@ export function DashboardPage() {
         </div>
 
         <div className="menu-grid">
+          <Link to="/expenses" className="menu-card">
+            <h2>Expenses</h2>
+            <p>支出一覧・作成・削除・月別集計・カテゴリ別集計を行います。</p>
+          </Link>
+
           <Link to="/categories" className="menu-card">
             <h2>Categories</h2>
             <p>支出カテゴリの一覧・作成・編集・削除を行います。</p>
           </Link>
         </div>
-
-        <p className="muted">
-          次のStepで、支出一覧・支出作成・集計カードを追加します。
-        </p>
       </section>
     </main>
   );
